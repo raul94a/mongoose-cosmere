@@ -2,11 +2,6 @@ const { Book } = require('../data/models/Book');
 
 const Planet = require('../data/models/Planet').Planet
 exports.getPlanet = (async (req, res, next) => {
-    //    const query =  req.query
-    //    const queryList = Object.keys(query);
-    //    if(!queryList.includes('name')){
-    //        res.status(404).json({error: 'Bad Request'});
-    //    }
     let planetName = req.params.planet;
     planetName = planetName[0].toUpperCase() + planetName.substring(1);
    
@@ -23,9 +18,9 @@ exports.getPlanet = (async (req, res, next) => {
 })
 
 exports.getPlanets = async (req, res, next) => {
-    //en el schema hemos referenciado a un array del schema Shard. En vez de mostrar el ObjectId del 
-    //documento, mostramos los datos que contiene dicho documento
-    //dentro de populate definimos los campos que queremos mostrar (u ocultar con el - delante en el caso del id)
+    //en el schema de Planets hay un array de shards, referenciados por su id de mongo. En vez de mostrar el ObjectId de dicho
+    //documento, voy a hacer que se muestren sus datos.
+    //Dentro de populate definimos los campos que queremos mostrar (u ocultar con el - delante en el caso del id)
     const planets = await Planet.find()
         .select('-__v')
         .populate('shards', 'name vessel status -_id')
@@ -36,22 +31,11 @@ exports.getPlanets = async (req, res, next) => {
             populate: {
                 path: 'characters',
                 select: 'name invested investitureName deceased faction powers -_id',
+                //debemos referenciar al modelo del documento que se quiere rellenar con populate
+                //para que mongoose sepa qué hacer
                 model: 'Character'
             }
         })
-
-
-
-    //si queremos que se seteen unicamente ciertos campos (ljuego hay que fitlrar)
-    /*.populate(
-        {
-            path: 'shards',
-            match: { vessel: 'Aona' },
-            select: 'name vessel status -_id'
-        }
-
-    )*/
-
 
     res.json(planets);
 
